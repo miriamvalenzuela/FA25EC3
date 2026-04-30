@@ -8,27 +8,18 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
 using namespace std;
 
 /*
    TEMPLATE TREE CLASS
    Multiple parents may point to the same child.
-   Students must manage storage, pointers, and dynamic allocation.
 
-   Requirements:
-   1. Templated Tree class.
-   2. Nodes stored dynamically.
-   3. Each node has:
-      - id
-      - data
-      - vector of children pointers
-   4. Students must prevent memory leaks.
-   5. Students must create createRoot, addNode, findNode, print functions, etc.
-
-   DO NOT IMPLEMENT ANYTHING HERE.
-   Only placeholders and TODO comments.
+   Design note (simple + safe approach):
+   - Will store every dynamically allocated node pointer in a vector (allNodes).
+   - That way, the destructor can delete each node exactly once.
+   - Parents store child pointers, so children can appear under multiple parents.
 */
-
 
 template <typename U>
 class Node {
@@ -37,8 +28,12 @@ public:
     U data;
     vector<Node<U>*> children;
 
-    // TODO: Write constructor
-    // Node(const string &nodeID, const U &value);
+    // Constructor
+    Node(const string& nodeID, const U& value) {
+        id = nodeID;
+        data = value;
+        // children starts empty automatically
+    }
 };
 
 template <typename T>
@@ -46,25 +41,24 @@ class Tree {
 private:
     Node<T>* root;
 
+    // Stores ALL nodes we dynamically allocate (for safe deletion later)
+    vector<Node<T>*> allNodes;
+
 public:
-    Tree();
-    // TODO: Initialize root pointer to nullptr
+    // Constructor
+    Tree() {
+        root = nullptr;
+    }
 
-    void createRoot(const string &id, const T &value);
-    // TODO: Allocate memory, assign id, assign data, set as root
-
-    void addNode(const string &parentID, const string &childID, const T &value);
-    // TODO: Find parent, create child, link parent to child
-    // TODO: Support repeated children under multiple parents
-
-    Node<T>* findNode(const string &id);
-    // TODO: Use DFS or BFS to search tree
-
+    void createRoot(const string& id, const T& value);
+    void addNode(const string& parentID, const string& childID, const T& value);
+    Node<T>* findNode(const string& id);
     void printAll();
-    // TODO: Print entire structure in readable form
 
-    ~Tree();
-    // TODO: Free all allocated memory
+    ~Tree() {
+        // Placeholder so the project links successfully.
+        // Will implement real cleanup later once nodes are allocated.
+    }
 };
 
 #endif //FA25EC3_TREE_H
