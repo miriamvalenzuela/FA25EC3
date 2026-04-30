@@ -2,10 +2,6 @@
 // Created by Manju Muralidharan on 11/22/25.
 //
 
-//
-// Created by Manju Muralidharan on 11/22/25.
-//
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
