@@ -28,11 +28,9 @@ public:
     U data;
     vector<Node<U>*> children;
 
-    // Constructor
     Node(const string& nodeID, const U& value) {
         id = nodeID;
         data = value;
-        // children starts empty automatically
     }
 };
 
@@ -40,17 +38,24 @@ template <typename T>
 class Tree {
 private:
     Node<T>* root;
-
-    // Stores ALL nodes we dynamically allocate (for safe deletion later)
     vector<Node<T>*> allNodes;
 
 public:
-    // Constructor
     Tree() {
         root = nullptr;
     }
 
-    void createRoot(const string& id, const T& value);
+    // Create the root node (called once at the start)
+    void createRoot(const string& id, const T& value) {
+        if (root != nullptr) {
+            cout << "Root already exists. createRoot ignored." << endl;
+            return;
+        }
+
+        root = new Node<T>(id, value);
+        allNodes.push_back(root);
+    }
+
     void addNode(const string& parentID, const string& childID, const T& value);
     Node<T>* findNode(const string& id);
     void printAll();
