@@ -57,7 +57,17 @@ public:
     }
 
     void addNode(const string& parentID, const string& childID, const T& value);
-    Node<T>* findNode(const string& id);
+
+    // Find a node by ID (returns nullptr if not found)
+    Node<T>* findNode(const string& id) {
+        for (int i = 0; i < static_cast<int>(allNodes.size()); i++) {
+            if (allNodes[i]->id == id) {
+                return allNodes[i];
+            }
+        }
+        return nullptr;
+    }
+
     void printAll();
 
     ~Tree() {
