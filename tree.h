@@ -56,7 +56,24 @@ public:
         allNodes.push_back(root);
     }
 
-    void addNode(const string& parentID, const string& childID, const T& value);
+    void addNode(const string& parentID, const string& childID, const T& value) {
+        // 1) Find the parent
+        Node<T>* parent = findNode(parentID);
+        if (parent == nullptr) {
+            cout << "Parent not found: " << parentID << endl;
+            return;
+        }
+
+        // 2) Find the child (or create it if missing)
+        Node<T>* child = findNode(childID);
+        if (child == nullptr) {
+            child = new Node<T>(childID, value);
+            allNodes.push_back(child);
+        }
+
+        // 3) Link parent -> child
+        parent->children.push_back(child);
+    }
 
     // Find a node by ID (returns nullptr if not found)
     Node<T>* findNode(const string& id) {
