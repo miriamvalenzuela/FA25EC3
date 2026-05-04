@@ -71,8 +71,18 @@ public:
             allNodes.push_back(child);
         }
 
-        // 3) Link parent -> child
-        parent->children.push_back(child);
+        // 3) Link parent -> child (but avoid duplicates)
+        bool alreadyLinked = false;
+        for (int i = 0; i < static_cast<int>(parent->children.size()); i++) {
+            if (parent->children[i]->id == childID) {
+                alreadyLinked = true;
+                break;
+            }
+        }
+
+        if (!alreadyLinked) {
+            parent->children.push_back(child);
+        }
     }
 
     // Find a node by ID (returns nullptr if not found)
