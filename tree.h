@@ -95,7 +95,32 @@ public:
         return nullptr;
     }
 
-    void printAll();
+    void printAll() {
+        if (root == nullptr) {
+            cout << "Tree is empty." << endl;
+            return;
+        }
+
+        cout << "\n===== Story Tree =====" << endl;
+
+        for (int i = 0; i < static_cast<int>(allNodes.size()); i++) {
+            Node<T>* current = allNodes[i];
+
+            cout << "Node " << current->id << ": " << current->data << endl;
+
+            if (current->children.empty()) {
+                cout << "  Child -> (none)" << endl;
+            } else {
+                for (int j = 0; j < static_cast<int>(current->children.size()); j++) {
+                    cout << "  Child -> " << current->children[j]->id << endl;
+                }
+            }
+
+            cout << endl;
+        }
+
+        cout << "======================" << endl;
+    }
 
     ~Tree() {
         // Placeholder so the project links successfully.
