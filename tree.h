@@ -123,8 +123,14 @@ public:
     }
 
     ~Tree() {
-        // Placeholder so the project links successfully.
-        // Will implement real cleanup later once nodes are allocated.
+        // Delete every node exactly once
+        for (int i = 0; i < static_cast<int>(allNodes.size()); i++) {
+            delete allNodes[i];
+            allNodes[i] = nullptr;
+        }
+
+        allNodes.clear();
+        root = nullptr;
     }
 };
 
