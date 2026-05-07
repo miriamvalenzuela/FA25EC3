@@ -40,6 +40,21 @@ private:
     Node<T>* root;
     vector<Node<T>*> allNodes;
 
+    Node<T>* getOrCreateNode(const string& nodeID, const T& value) {
+        Node<T>* existing = findNode(nodeID);
+        if (existing != nullptr) {
+            // If this node was created earlier with empty data, update it
+            if (existing->data == T()) {
+                existing->data = value;
+            }
+            return existing;
+        }
+
+        Node<T>* created = new Node<T>(nodeID, value);
+        allNodes.push_back(created);
+        return created;
+    }
+
 public:
     Tree() {
         root = nullptr;
@@ -57,32 +72,32 @@ public:
     }
 
     void addNode(const string& parentID, const string& childID, const T& value) {
-        // 1) Find the parent
+        if (root == nullptr) {
+            cout << "Tree has no root yet. addNode ignored." << endl;
+            return;
+        }
+
+        if (childID.empty()) {
+            cout << "Child ID is empty. addNode ignored." << endl;
+            return;
+        }
+
         Node<T>* parent = findNode(parentID);
         if (parent == nullptr) {
             cout << "Parent not found: " << parentID << endl;
             return;
         }
 
-        // 2) Find the child (or create it if missing)
-        Node<T>* child = findNode(childID);
-        if (child == nullptr) {
-            child = new Node<T>(childID, value);
-            allNodes.push_back(child);
-        }
+        Node<T>* child = getOrCreateNode(childID, value);
 
-        // 3) Link parent -> child (but avoid duplicates)
-        bool alreadyLinked = false;
+        // Avoid duplicate child links under the same parent
         for (int i = 0; i < static_cast<int>(parent->children.size()); i++) {
             if (parent->children[i]->id == childID) {
-                alreadyLinked = true;
-                break;
+                return; // already linked
             }
         }
 
-        if (!alreadyLinked) {
-            parent->children.push_back(child);
-        }
+        parent->children.push_back(child);
     }
 
     // Find a node by ID (returns nullptr if not found)
@@ -96,7 +111,7 @@ public:
     }
 
     void printAll() {
-        if (root == nullptr) {
+        if (root == nullptr || allNodes.empty()) {
             cout << "Tree is empty." << endl;
             return;
         }
