@@ -16,8 +16,8 @@ using namespace std;
    Multiple parents may point to the same child.
 
    Design note (simple + safe approach):
-   - Will store every dynamically allocated node pointer in a vector (allNodes).
-   - That way, the destructor can delete each node exactly once.
+   - Store every dynamically allocated node pointer in a vector (allNodes).
+   - Destructor deletes each node exactly once.
    - Parents store child pointers, so children can appear under multiple parents.
 */
 
@@ -40,11 +40,26 @@ private:
     Node<T>* root;
     vector<Node<T>*> allNodes;
 
+    // Find a node by ID (returns nullptr if not found)
+    Node<T>* findNode(const string& id) {
+        for (int i = 0; i < static_cast<int>(allNodes.size()); i++) {
+            if (allNodes[i]->id == id) {
+                return allNodes[i];
+            }
+        }
+        return nullptr;
+    }
+
+    // Create the node if missing, if it exists but has empty data, update it
     Node<T>* getOrCreateNode(const string& nodeID, const T& value) {
+        if (nodeID.empty()) {
+            return nullptr;
+        }
+
         Node<T>* existing = findNode(nodeID);
         if (existing != nullptr) {
-            // If this node was created earlier with empty data, update it
-            if (existing->data == T()) {
+            // Update data only if it was empty before and we now have real data
+            if (existing->data == T() && value != T()) {
                 existing->data = value;
             }
             return existing;
@@ -53,6 +68,21 @@ private:
         Node<T>* created = new Node<T>(nodeID, value);
         allNodes.push_back(created);
         return created;
+    }
+
+    void linkParentChild(Node<T>* parent, Node<T>* child) {
+        if (parent == nullptr || child == nullptr) {
+            return;
+        }
+
+        // Avoid duplicate child links
+        for (int i = 0; i < static_cast<int>(parent->children.size()); i++) {
+            if (parent->children[i]->id == child->id) {
+                return; // already linked
+            }
+        }
+
+        parent->children.push_back(child);
     }
 
 public:
@@ -69,6 +99,11 @@ public:
 
         root = new Node<T>(id, value);
         allNodes.push_back(root);
+    }
+
+    // Public helper: make sure a node exists (not using linking)
+    void ensureNodeExists(const string& id, const T& value) {
+        getOrCreateNode(id, value);
     }
 
     void addNode(const string& parentID, const string& childID, const T& value) {
@@ -89,25 +124,7 @@ public:
         }
 
         Node<T>* child = getOrCreateNode(childID, value);
-
-        // Avoid duplicate child links under the same parent
-        for (int i = 0; i < static_cast<int>(parent->children.size()); i++) {
-            if (parent->children[i]->id == childID) {
-                return; // already linked
-            }
-        }
-
-        parent->children.push_back(child);
-    }
-
-    // Find a node by ID (returns nullptr if not found)
-    Node<T>* findNode(const string& id) {
-        for (int i = 0; i < static_cast<int>(allNodes.size()); i++) {
-            if (allNodes[i]->id == id) {
-                return allNodes[i];
-            }
-        }
-        return nullptr;
+        linkParentChild(parent, child);
     }
 
     void printAll() {
@@ -137,8 +154,60 @@ public:
         cout << "======================" << endl;
     }
 
+    void playGame() {
+        if (root == nullptr) {
+            cout << "Tree is empty. Nothing to play." << endl;
+            return;
+        }
+
+        Node<T>* current = root;
+
+        cout << "\n===== Begin Adventure =====\n" << endl;
+
+        while (true) {
+            cout << current->data << endl;
+
+            if (current->children.empty()) {
+                cout << "\nThere are no further paths." << endl;
+                cout << "Your journey ends here.\n" << endl;
+                break;
+            }
+
+            cout << "\nChoose your next action:" << endl;
+            for (int i = 0; i < static_cast<int>(current->children.size()); i++) {
+                Node<T>* child = current->children[i];
+
+                if (child->data == T()) {
+                    cout << (i + 1) << ". Go to node " << child->id << endl;
+                } else {
+                    cout << (i + 1) << ". " << child->data << endl;
+                }
+            }
+
+            cout << "Selection: ";
+            int choice;
+            cin >> choice;
+
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Please enter a number.\n" << endl;
+                continue;
+            }
+
+            if (choice < 1 || choice > static_cast<int>(current->children.size())) {
+                cout << "Invalid choice. Try again.\n" << endl;
+                continue;
+            }
+
+            current = current->children[choice - 1];
+            cout << endl;
+        }
+
+        cout << "===== Adventure Complete =====" << endl;
+    }
+
     ~Tree() {
-        // Delete every node exactly once
         for (int i = 0; i < static_cast<int>(allNodes.size()); i++) {
             delete allNodes[i];
             allNodes[i] = nullptr;
